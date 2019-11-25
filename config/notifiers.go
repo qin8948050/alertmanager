@@ -440,6 +440,7 @@ type WechatConfig struct {
 	ToUser    string `yaml:"to_user,omitempty" json:"to_user,omitempty"`
 	ToParty   string `yaml:"to_party,omitempty" json:"to_party,omitempty"`
 	ToTag     string `yaml:"to_tag,omitempty" json:"to_tag,omitempty"`
+	ToGroup   string `yaml:"to_group,omitempty" json:"to_group,omitempty"`
 	AgentID   string `yaml:"agent_id,omitempty" json:"agent_id,omitempty"`
 }
 

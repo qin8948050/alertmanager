@@ -55,6 +55,7 @@ type weChatMessage struct {
 	ToUser  string               `yaml:"touser,omitempty" json:"touser,omitempty"`
 	ToParty string               `yaml:"toparty,omitempty" json:"toparty,omitempty"`
 	Totag   string               `yaml:"totag,omitempty" json:"totag,omitempty"`
+    ToGroup string               `yaml:"togroup,omitempty" json:"chatid,omitempty"`
 	AgentID string               `yaml:"agentid,omitempty" json:"agentid,omitempty"`
 	Safe    string               `yaml:"safe,omitempty" json:"safe,omitempty"`
 	Type    string               `yaml:"msgtype,omitempty" json:"msgtype,omitempty"`
@@ -141,6 +142,7 @@ func (n *Notifier) Notify(ctx context.Context, as ...*types.Alert) (bool, error)
 		ToUser:  tmpl(n.conf.ToUser),
 		ToParty: tmpl(n.conf.ToParty),
 		Totag:   tmpl(n.conf.ToTag),
+		ToGroup: tmpl(n.conf.ToGroup),
 		AgentID: tmpl(n.conf.AgentID),
 		Type:    "text",
 		Safe:    "0",
@@ -155,7 +157,11 @@ func (n *Notifier) Notify(ctx context.Context, as ...*types.Alert) (bool, error)
 	}
 
 	postMessageURL := n.conf.APIURL.Copy()
-	postMessageURL.Path += "message/send"
+	if n.conf.ToGroup !=""{
+		postMessageURL.Path += "appchat/send"
+	}else{
+		postMessageURL.Path += "message/send"
+	}
 	q := postMessageURL.Query()
 	q.Set("access_token", n.accessToken)
 	postMessageURL.RawQuery = q.Encode()
