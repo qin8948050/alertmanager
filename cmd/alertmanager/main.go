@@ -469,6 +469,7 @@ func run() int {
 			close(srvc)
 		}
 		defer func() {
+			fmt.Println("api defer defer")
 			if err := srv.Close(); err != nil {
 				level.Error(logger).Log("msg", "Error on closing the server", "err", err)
 			}

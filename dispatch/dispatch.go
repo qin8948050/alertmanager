@@ -233,6 +233,8 @@ type notifyFunc func(context.Context, ...*types.Alert) bool
 
 // processAlert determines in which aggregation group the alert falls
 // and inserts it.
+
+//////告警分组聚合
 func (d *Dispatcher) processAlert(alert *types.Alert, route *Route) {
 	groupLabels := getGroupLabels(alert, route)
 

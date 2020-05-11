@@ -182,6 +182,7 @@ func (api *API) Register(r *route.Router, routePrefix string) *http.ServeMux {
 	if routePrefix != "/" {
 		apiPrefix = routePrefix
 	}
+	fmt.Println("api registry !!!!!!!!")
 	// TODO(beorn7): HTTP instrumentation is only in place for Router. Since
 	// /api/v2 works on the Handler level, it is currently not instrumented
 	// at all (with the exception of requestsInFlight, which is handled in

@@ -131,7 +131,6 @@ func TestAddAlerts(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error %v", err)
 		}
-
 		alertsProvider := newFakeAlerts([]*types.Alert{}, tc.err)
 		api := New(alertsProvider, nil, newGetAlertStatus(alertsProvider), nil, nil, nil)
 		defaultGlobalConfig := config.DefaultGlobalConfig()

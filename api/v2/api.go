@@ -306,10 +306,16 @@ func (api *API) postAlertsHandler(params alert_ops.PostAlertsParams) middleware.
 			alert.Timeout = true
 			alert.EndsAt = now.Add(resolveTimeout)
 		}
+		var source_labels prometheus_model.LabelSet
+		//source_labels=alert.Labels
+		//level.Info(api.logger).Log("aa",source_labels)
 		if alert.EndsAt.After(time.Now()) {
+			level.Info(api.logger).Log("test", source_labels["source"])
 			api.m.Firing().Inc()
+			level.Info(api.logger).Log("firing", "aaa")
 		} else {
 			api.m.Resolved().Inc()
+			level.Info(api.logger).Log("resolve", "bbb")
 		}
 	}
 
