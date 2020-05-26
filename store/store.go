@@ -18,14 +18,22 @@ import (
 	"errors"
 	"sync"
 	"time"
-
 	"github.com/prometheus/alertmanager/types"
 	"github.com/prometheus/common/model"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	"os"
 )
 
 var (
 	// ErrNotFound is returned if a Store cannot find the Alert.
 	ErrNotFound = errors.New("alert not found")
+	timestampFormat = log.TimestampFormat(
+		func() time.Time { return time.Now().UTC() },
+		"2006-01-02T15:04:05.000Z07:00",
+	)
+	l = log.NewLogfmtLogger(os.Stdout)
+	logger = log.With(l, "ts", timestampFormat, "caller", log.DefaultCaller,"component","store")
 )
 
 // Alerts provides lock-coordinated to an in-memory map of alerts, keyed by
@@ -38,13 +46,16 @@ type Alerts struct {
 	cb func([]*types.Alert)
 }
 
+
+
 // NewAlerts returns a new Alerts struct.
 func NewAlerts() *Alerts {
 	a := &Alerts{
 		c:  make(map[model.Fingerprint]*types.Alert),
 		cb: func(_ []*types.Alert) {},
 	}
-
+	//打印日志
+	level.Info(logger).Log("msg","a")
 	return a
 }
 
