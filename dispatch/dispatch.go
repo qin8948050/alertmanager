@@ -28,6 +28,7 @@ import (
 	"github.com/prometheus/alertmanager/provider"
 	"github.com/prometheus/alertmanager/store"
 	"github.com/prometheus/alertmanager/types"
+	"encoding/json"
 )
 
 // Dispatcher sorts incoming alerts into aggregation groups and
@@ -110,6 +111,8 @@ func (d *Dispatcher) run(it provider.AlertIterator) {
 			}
 
 			for _, r := range d.route.Match(alert.Labels) {
+				level.Info(d.logger).Log("test_match","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				level.Info(d.logger).Log("receivers: ",(*r).RouteOpts.Receiver)
 				d.processAlert(alert, r)
 			}
 
@@ -211,6 +214,11 @@ func (d *Dispatcher) Groups(routeFilter func(*Route) bool, alertFilter func(*typ
 	for i := range receivers {
 		sort.Strings(receivers[i])
 	}
+	//GET聚合之后的数据
+	for i, x := range groups {
+		aa,_:=json.Marshal(*x)
+		level.Info(d.logger).Log("num",i,"msg",aa)
+	}
 
 	return groups, receivers
 }
@@ -234,7 +242,7 @@ type notifyFunc func(context.Context, ...*types.Alert) bool
 // processAlert determines in which aggregation group the alert falls
 // and inserts it.
 
-//////告警分组聚合
+//告警分组聚合
 func (d *Dispatcher) processAlert(alert *types.Alert, route *Route) {
 	groupLabels := getGroupLabels(alert, route)
 
@@ -270,8 +278,8 @@ func (d *Dispatcher) processAlert(alert *types.Alert, route *Route) {
 			return err == nil
 		})
 	}
-
 	ag.insert(alert)
+	fmt.Println(ag.GroupKey())
 }
 
 func getGroupLabels(alert *types.Alert, route *Route) model.LabelSet {
