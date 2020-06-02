@@ -534,7 +534,6 @@ func (n *DedupStage) needsUpdate(entry *nflogpb.Entry, firing, resolved map[uint
 		// since it doesn't know about them.
 		return len(entry.FiringAlerts) > 0
 	}
-
 	if n.rs.SendResolved() && !entry.IsResolvedSubset(resolved) {
 		return true
 	}
@@ -561,17 +560,26 @@ func (n *DedupStage) Exec(ctx context.Context, l log.Logger, alerts ...*types.Al
 	resolved := []uint64{}
 
 	var hash uint64
-	for _, a := range alerts {
+	//var inform_labels model.LabelSet
+	for i, a := range alerts {
 		hash = n.hash(a)
-		if a.Resolved() {
+		//alert_type为Inform时不发送Resolved告警
+		alert_type, _ := (*a).Labels["alert_type"]
+		fmt.Println("alert:", alert_type, i, a.Labels, a.Resolved())
+		if a.Resolved() && alert_type != "Inform" {
+			fmt.Println("inform resolved=false")
 			resolved = append(resolved, hash)
 			resolvedSet[hash] = struct{}{}
+		} else if a.Resolved() && alert_type == "Inform" {
+			fmt.Println("inform resolved=true")
+			continue
 		} else {
+			fmt.Println("no inform resolved=true")
 			firing = append(firing, hash)
 			firingSet[hash] = struct{}{}
 		}
 	}
-
+	fmt.Println(resolved)
 	ctx = WithFiringAlerts(ctx, firing)
 	ctx = WithResolvedAlerts(ctx, resolved)
 
@@ -629,13 +637,23 @@ func (r RetryStage) Exec(ctx context.Context, l log.Logger, alerts ...*types.Ale
 		}
 		for _, a := range alerts {
 			if a.Status() != model.AlertResolved {
+				fmt.Println("a+++")
 				sent = append(sent, a)
 			}
 		}
 	} else {
+		fmt.Println("b+++")
 		sent = alerts
 	}
-
+	fmt.Println(sent)
+	for i, a := range sent {
+		if a.Labels["alert_type"] == "Inform" && a.Resolved() {
+			sent = append(sent[:i], sent[i+1:]...)
+		}
+	}
+	if len(sent) == 0 {
+		return ctx, nil, fmt.Errorf("resolve passed")
+	}
 	var (
 		i    = 0
 		b    = backoff.NewExponentialBackOff()

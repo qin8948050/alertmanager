@@ -28,7 +28,6 @@ import (
 	"github.com/prometheus/alertmanager/provider"
 	"github.com/prometheus/alertmanager/store"
 	"github.com/prometheus/alertmanager/types"
-	"encoding/json"
 )
 
 // Dispatcher sorts incoming alerts into aggregation groups and
@@ -111,8 +110,9 @@ func (d *Dispatcher) run(it provider.AlertIterator) {
 			}
 
 			for _, r := range d.route.Match(alert.Labels) {
-				level.Info(d.logger).Log("test_match","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-				level.Info(d.logger).Log("receivers: ",(*r).RouteOpts.Receiver)
+
+				level.Info(d.logger).Log("test_match", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				level.Info(d.logger).Log("receivers: ", (*r).RouteOpts.Receiver)
 				d.processAlert(alert, r)
 			}
 
@@ -215,10 +215,12 @@ func (d *Dispatcher) Groups(routeFilter func(*Route) bool, alertFilter func(*typ
 		sort.Strings(receivers[i])
 	}
 	//GET聚合之后的数据
-	for i, x := range groups {
-		aa,_:=json.Marshal(*x)
-		level.Info(d.logger).Log("num",i,"msg",aa)
-	}
+	/*
+		for i, x := range groups {
+			aa,_:=json.Marshal(*x)
+			level.Info(d.logger).Log("num",i,"msg",aa)
+		}
+	*/
 
 	return groups, receivers
 }
@@ -279,7 +281,6 @@ func (d *Dispatcher) processAlert(alert *types.Alert, route *Route) {
 		})
 	}
 	ag.insert(alert)
-	fmt.Println(ag.GroupKey())
 }
 
 func getGroupLabels(alert *types.Alert, route *Route) model.LabelSet {

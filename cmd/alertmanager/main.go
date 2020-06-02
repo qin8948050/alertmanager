@@ -115,7 +115,8 @@ func buildReceiverIntegrations(nc *config.Receiver, tmpl *template.Template, log
 	var (
 		errs         types.MultiError
 		integrations []notify.Integration
-		add          = func(name string, i int, rs notify.ResolvedSender, f func(l log.Logger) (notify.Notifier, error)) {
+
+		add = func(name string, i int, rs notify.ResolvedSender, f func(l log.Logger) (notify.Notifier, error)) {
 			n, err := f(log.With(logger, "integration", name))
 			if err != nil {
 				errs.Add(err)
