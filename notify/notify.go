@@ -561,25 +561,36 @@ func (n *DedupStage) Exec(ctx context.Context, l log.Logger, alerts ...*types.Al
 
 	var hash uint64
 	//var inform_labels model.LabelSet
-	for i, a := range alerts {
+	/*
+		for i, a := range alerts {
+			hash = n.hash(a)
+			//alert_type为Inform时不发送Resolved告警
+			alert_type, _ := (*a).Labels["alert_type"]
+			fmt.Println("alert:", alert_type, i, a.Labels, a.Resolved())
+			if a.Resolved() && alert_type != "Inform" {
+				fmt.Println("inform resolved=false")
+				resolved = append(resolved, hash)
+				resolvedSet[hash] = struct{}{}
+			} else if a.Resolved() && alert_type == "Inform" {
+				fmt.Println("inform resolved=true")
+				continue
+			} else {
+				fmt.Println("no inform resolved=true")
+				firing = append(firing, hash)
+				firingSet[hash] = struct{}{}
+			}
+		}
+	*/
+	for _, a := range alerts {
 		hash = n.hash(a)
-		//alert_type为Inform时不发送Resolved告警
-		alert_type, _ := (*a).Labels["alert_type"]
-		fmt.Println("alert:", alert_type, i, a.Labels, a.Resolved())
-		if a.Resolved() && alert_type != "Inform" {
-			fmt.Println("inform resolved=false")
+		if a.Resolved() {
 			resolved = append(resolved, hash)
 			resolvedSet[hash] = struct{}{}
-		} else if a.Resolved() && alert_type == "Inform" {
-			fmt.Println("inform resolved=true")
-			continue
 		} else {
-			fmt.Println("no inform resolved=true")
 			firing = append(firing, hash)
 			firingSet[hash] = struct{}{}
 		}
 	}
-	fmt.Println(resolved)
 	ctx = WithFiringAlerts(ctx, firing)
 	ctx = WithResolvedAlerts(ctx, resolved)
 
@@ -635,12 +646,15 @@ func (r RetryStage) Exec(ctx context.Context, l log.Logger, alerts ...*types.Ale
 		if len(firing) == 0 {
 			return ctx, alerts, nil
 		}
-		for _, a := range alerts {
-			if a.Status() != model.AlertResolved {
-				fmt.Println("a+++")
-				sent = append(sent, a)
+		//Inform resolved 不通知
+		/*
+			for _, a := range alerts {
+				if a.Status() != model.AlertResolved {
+					fmt.Println("a+++")
+					sent = append(sent, a)
+				}
 			}
-		}
+		*/
 	} else {
 		fmt.Println("b+++")
 		sent = alerts

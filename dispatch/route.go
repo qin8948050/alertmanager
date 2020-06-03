@@ -121,7 +121,6 @@ func (r *Route) Match(lset model.LabelSet) []*Route {
 	if !r.Matchers.Match(lset) {
 		return nil
 	}
-
 	var all []*Route
 
 	for _, cr := range r.Routes {
