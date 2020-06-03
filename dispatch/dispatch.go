@@ -108,14 +108,7 @@ func (d *Dispatcher) run(it provider.AlertIterator) {
 				level.Error(d.logger).Log("msg", "Error on alert update", "err", err)
 				continue
 			}
-			//跳过告警类型为Inform,状态为resolved的告警
-			alert_type := (*alert).Labels["alert_type"]
-			alert_resolved := (*alert).Resolved()
-			if alert_type == "Inform" && alert_resolved {
-				return
-			}
 			for _, r := range d.route.Match(alert.Labels) {
-
 				level.Info(d.logger).Log("test_match", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 				level.Info(d.logger).Log("receivers: ", (*r).RouteOpts.Receiver)
 				d.processAlert(alert, r)
